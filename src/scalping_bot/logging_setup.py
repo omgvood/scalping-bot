@@ -8,7 +8,18 @@ import sys
 import structlog
 
 
+def _force_utf8_stdio() -> None:
+    """Windows-консоль по умолчанию не UTF-8. Без этого кириллица в логах превращается в кракозябры."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except Exception:  # noqa: BLE001
+                pass
+
+
 def configure_logging(level: str = "INFO") -> None:
+    _force_utf8_stdio()
     log_level = getattr(logging, level.upper(), logging.INFO)
     logging.basicConfig(
         format="%(message)s",
