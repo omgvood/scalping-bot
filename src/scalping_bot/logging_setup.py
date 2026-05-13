@@ -33,8 +33,8 @@ def configure_logging(level: str = "INFO") -> None:
         processors=[
             structlog.contextvars.merge_contextvars,
             structlog.processors.add_log_level,
-            structlog.processors.TimeStamper(fmt="iso", utc=True),
-            structlog.dev.ConsoleRenderer(colors=True),
+            structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S", utc=True),
+            structlog.dev.ConsoleRenderer(colors=True, pad_event=0, pad_level=False),
         ],
         wrapper_class=structlog.make_filtering_bound_logger(log_level),
         logger_factory=structlog.PrintLoggerFactory(),
