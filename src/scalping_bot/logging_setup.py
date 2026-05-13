@@ -26,6 +26,9 @@ def configure_logging(level: str = "INFO") -> None:
         stream=sys.stdout,
         level=log_level,
     )
+    # httpx логирует каждый REST-запрос на INFO — для нас это шум, поднимаем до WARNING
+    for noisy in ("httpx", "httpcore"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
     structlog.configure(
         processors=[
             structlog.contextvars.merge_contextvars,

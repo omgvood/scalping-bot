@@ -17,11 +17,13 @@ from okx.MarketData import MarketAPI
 
 # OKX bar names для нужных нам таймфреймов (mapping из конфига → OKX-обозначение).
 # OKX V5 принимает: 1m, 3m, 5m, 15m, 30m, 1H, 2H, 4H, 6H, 12H, 1D, ...
+# ВНИМАНИЕ: '1D' у OKX по умолчанию = дневная свеча с открытием в 00:00 UTC+8 (Гонконг).
+# Используем '1Dutc' чтобы дневной интервал совпадал с UTC, как у нашего daily_reset.
 TIMEFRAME_TO_OKX_BAR: dict[str, str] = {
     "15m": "15m",
     "30m": "30m",
     "60m": "1H",
-    "1D": "1D",
+    "1D": "1Dutc",
 }
 
 
