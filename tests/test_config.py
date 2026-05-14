@@ -7,8 +7,12 @@ from scalping_bot.config import StrategyConfig
 
 def test_strategy_config_loads_from_default_yaml() -> None:
     cfg = StrategyConfig.load()
-    assert len(cfg.assets) == 4
-    assert {a.symbol for a in cfg.assets} == {"BTC-USDT", "ETH-USDT", "SOL-USDT", "BNB-USDT"}
+    symbols = {a.symbol for a in cfg.assets}
+    # Базовый набор (4 актива из спеки) обязан присутствовать всегда
+    assert {"BTC-USDT", "ETH-USDT", "SOL-USDT", "BNB-USDT"}.issubset(symbols)
+    # Все min_body_pct положительные и в разумном диапазоне (0.01% .. 1%)
+    for asset in cfg.assets:
+        assert 0.01 <= asset.min_body_pct <= 1.0
 
 
 def test_strategy_config_take_profit_descending() -> None:

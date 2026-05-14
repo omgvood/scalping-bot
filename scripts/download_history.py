@@ -1,8 +1,9 @@
 """Скачать историю свечей с OKX за N дней назад и сохранить в SQLite.
 
 Запуск:
-    uv run python scripts/download_history.py          # по умолчанию 730 дней (2 года)
-    uv run python scripts/download_history.py 1095     # 3 года
+    uv run python scripts/download_history.py                       # 2 года, активы из config.yaml
+    uv run python scripts/download_history.py 1095                  # 3 года, активы из config.yaml
+    uv run python scripts/download_history.py 730 TON-USDT TRX-USDT # только эти 2 пары
 
 Что делает:
 - Для каждой комбинации (актив, таймфрейм) идёт назад по времени батчами
@@ -142,6 +143,7 @@ def download_one(
 
 def main() -> None:
     days = int(sys.argv[1]) if len(sys.argv) > 1 else 730
+    cli_symbols = sys.argv[2:] if len(sys.argv) > 2 else None
     earliest = datetime.now(UTC) - timedelta(days=days)
 
     cfg = StrategyConfig.load()
@@ -152,12 +154,13 @@ def main() -> None:
     conn = sqlite3.connect(db_path)
     _apply_schema(conn)
 
+    symbols = cli_symbols or [a.symbol for a in cfg.assets]
     print(f"Downloading {days} days of history to {db_path}")
-    print(f"Earliest target: {earliest.date()} UTC\n")
+    print(f"Earliest target: {earliest.date()} UTC")
+    print(f"Symbols: {', '.join(symbols)}\n")
 
     total_start = time.time()
-    for asset in cfg.assets:
-        symbol = asset.symbol
+    for symbol in symbols:
         for tf in ["15m", "30m", "60m", "1D"]:
             before = _count_in_db(conn, symbol, tf)
             t0 = time.time()
