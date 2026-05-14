@@ -97,6 +97,26 @@ CREATE TABLE IF NOT EXISTS decisions (
 CREATE INDEX IF NOT EXISTS idx_decisions_ts ON decisions(ts DESC);
 
 -- ============================================================
+-- historical_candles: сырые OHLCV свечи с биржи для бэктестов.
+-- Заполняется отдельным скриптом (scripts/download_history.py), а не
+-- основным циклом бота. Никаких индикаторов здесь не храним —
+-- считаются на лету во время replay.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS historical_candles (
+    symbol      TEXT NOT NULL,
+    timeframe   TEXT NOT NULL,
+    open_time   TEXT NOT NULL,                       -- ISO 8601 UTC
+    open        REAL NOT NULL,
+    high        REAL NOT NULL,
+    low         REAL NOT NULL,
+    close       REAL NOT NULL,
+    volume      REAL NOT NULL,
+    PRIMARY KEY (symbol, timeframe, open_time)
+);
+CREATE INDEX IF NOT EXISTS idx_hist_symbol_tf
+    ON historical_candles(symbol, timeframe, open_time);
+
+-- ============================================================
 -- daily_stats: для daily loss limit и отчётов
 -- ============================================================
 CREATE TABLE IF NOT EXISTS daily_stats (
